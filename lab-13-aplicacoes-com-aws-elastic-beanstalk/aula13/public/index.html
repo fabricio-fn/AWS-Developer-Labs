@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frontend no AWS Beanstalk</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            text-align: center;
+            max-width: 600px;
+            padding: 2rem;
+        }
+        
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0;
+            animation: fadeInUp 1s ease forwards;
+        }
+        
+        p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0;
+            animation: fadeInUp 1s ease 0.3s forwards;
+        }
+        
+        .status {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            opacity: 0;
+            animation: fadeInUp 1s ease 0.6s forwards;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            opacity: 0;
+            animation: fadeInUp 1s ease 0.9s forwards;
+        }
+        
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .footer {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0.7;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Frontend no AWS</h1>
+        <p>Seu frontend está rodando no Elastic Beanstalk!</p>
+        
+        <div class="status">
+            <h3>Status do Servidor</h3>
+            <p id="server-status">Carregando...</p>
+        </div>
+        
+        <div class="buttons">
+            <button class="btn" onclick="checkHealth()">🔍 Verificar Saúde</button>
+            <button class="btn" onclick="checkAPI()">⚡ Testar API</button>
+            <button class="btn" onclick="window.location.reload()">🔄 Recarregar</button>
+        </div>
+    </div>
+    
+    <div class="footer">
+        Servido por Node.js + Express no AWS Beanstalk
+    </div>
+
+    <script>
+        async function checkHealth() {
+            try {
+                const response = await fetch('/health');
+                const data = await response.json();
+                document.getElementById('server-status').innerHTML = `
+                    <strong>Status:</strong> ${data.status}<br>
+                    <strong>Uptime:</strong> ${Math.floor(data.uptime)}s<br>
+                    <strong>Timestamp:</strong> ${new Date(data.timestamp).toLocaleString()}
+                `;
+            } catch (error) {
+                document.getElementById('server-status').innerHTML = `
+                    <strong>Erro:</strong> ${error.message}
+                `;
+            }
+        }
+        
+        async function checkAPI() {
+            try {
+                const response = await fetch('/api/status');
+                const data = await response.json();
+                alert(`API Response: ${data.message}\nEnvironment: ${data.environment}\nVersion: ${data.version}`);
+            } catch (error) {
+                alert('Erro ao conectar com a API: ' + error.message);
+            }
+        }
+        
+        // Verificar status automaticamente ao carregar
+        window.addEventListener('load', checkHealth);
+    </script>
+</body>
+</html>
